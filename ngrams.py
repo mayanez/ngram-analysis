@@ -3,12 +3,12 @@ import operator, binascii, sys, getopt, collections
 def window_slide(ngrams, window_len):
     idx = 0
     ngram_list = ngrams.items()
-    result = list()
+    result = dict()
     if (window_len == 1):
         return ngrams
     else:
         while (idx < len(ngram_list)):
-            result.append(ngram_list[idx])
+            result[ngram_list[idx][0]]= (ngram_list[idx][1])
             idx += window_len
         return result
 
@@ -23,16 +23,21 @@ def ngrams(tokens, n):
     return output
 
 def top_20(ngrams):
-    sorted_ngrams = sorted(ngrams, key=lambda g: (g[1], g[0]), reverse=True)
-    return sorted_ngrams[0:20]
+    sorted_ngrams = sorted(ngrams.iteritems(), key=lambda g: (g[1], g[0]), reverse=True)
+    total_size = len(sorted_ngrams)
 
-def tokenize(filename, n):
+    if total_size >= 20:
+        return sorted_ngrams[0:20]
+    else:
+        return sorted_ngrams
+
+def tokenize(filename):
     tokens = list()
     with open(filename, "rb") as f:
-        byte = f.read(n)
+        byte = f.read(1)
         while byte != "":
             tokens.append(byte)
-            byte = f.read(n)
+            byte = f.read(1)
 
     return tokens
 
@@ -56,7 +61,7 @@ if __name__ == '__main__':
         print 'window_len must be <= ngram_len'
         sys.exit(1)
 
-    tokens = tokenize(inputfile, ngram_len)
+    tokens = tokenize(inputfile)
     n_grams = ngrams(tokens, ngram_len)
     window_grams = window_slide(n_grams, window_len)
     top_20 = top_20(window_grams)
